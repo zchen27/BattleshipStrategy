@@ -18,7 +18,6 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 		{
 			System.out.println(p);
 		}
-		
 	}
 	
 	private enum Status
@@ -139,10 +138,13 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 	{
 		if (status == Status.HUNT)
 		{
+			System.out.println("HUNT");
+			System.out.println(getNextHUNTTarget());
 			return getNextHUNTTarget();
 		}
 		else if(status == Status.TARGET)
 		{
+			System.out.println("TARGET");
 			return getNextTARGETTarget();
 		}
 		return null;
@@ -152,37 +154,23 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 	public void updatePlayer(Position pos, boolean hit, char initial, String boatName, boolean sunk, boolean gameOver, boolean tooManyTurns, int turns)
 	{
 		parity = smallestParity();
-		char target = initial;
-		if(sunk)
+		if(hit)
 		{
-			for(Parity p: stillAlive)
-			{
-				if(p.name == initial)
-				{
-					stillAlive.remove(p);
-				}
-			}
-			target = straggler();
+			status = Status.TARGET;
 		}
 		else
 		{
-			if(hit)
-			{
-				target = initial;
-			}
-			else
-			{
-				target = '\u0000';
-			}
+			status = Status.HUNT;
 		}
-		manageStack(hit, sunk, target, pos);
+		manageStack(pos, hit, sunk, initial);
 	}
 	
-	private void manageStack(boolean hit, boolean sunk, char initial, Position lastShot)
+
+	
+	private void manageStack(Position lastShot, boolean hit, boolean sunk, char initial)
 	{
 		int col = lastShot.columnIndex();
 		int row = lastShot.rowIndex();
-		int size = toParity(initial).parity;
 		Position east = null;
 		Position west = null;
 		Position north = null;
@@ -245,7 +233,6 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 		}
 		
 		
-		
 	}
 	
 	private Parity smallestParity()
@@ -268,14 +255,16 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 		{
 			for(int row = 0; row < 10; row++)
 			{
-				if(checkParity(new Position(col, row)))
+				test = new Position(col, row);
+				if(checkParity(test) && super.getGrid().empty(test))
 				{
-					test = new Position(col, row);
 					return test;
 				}
 			}
 		}
-		return null;
+		test = super.shoot();
+		System.out.println(test);
+		return test;
 	}
 	
 	private Position getNextTARGETTarget()
