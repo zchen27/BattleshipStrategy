@@ -100,6 +100,7 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 	private Parity parity;
 	private HashSet<Parity> stillAlive;
 	private TargetStack<Position> targetStack;
+	BattleshipPlayer display = new BattleshipPlayer();
 	
 	public ZhehaoChenStrategy()
 	{
@@ -119,6 +120,8 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 		stillAlive.add(Parity.A);
 		parity = Parity.D;
 		targetStack = new TargetStack();
+		//debug
+		display.initializeGrid();
 	}
 	
 	@Override
@@ -157,12 +160,14 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 	public void updatePlayer(Position pos, boolean hit, char initial, String boatName, boolean sunk, boolean gameOver, boolean tooManyTurns, int turns)
 	{
 		super.updatePlayer(pos, hit, initial, boatName, sunk, gameOver, tooManyTurns, turns);
+		display.updatePlayer(pos, hit, initial, boatName, sunk, gameOver, tooManyTurns, turns);
 		parity = smallestParity();
 		if(hit)
 		{
 			status = Status.TARGET;
 		}
-		else
+		
+		if(sunk)
 		{
 			status = Status.HUNT;
 		}
@@ -173,12 +178,18 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 	
 	private void manageStack(Position pos, boolean hit, boolean sunk, char initial)
 	{
+		
 		int col = pos.columnIndex();
 		int row = pos.rowIndex();
+		System.out.println(pos + " " + row + " " + col);
 		Position east = null;
 		Position west = null;
 		Position north = null;
 		Position south = null;
+		boolean eastHit;
+		boolean westHit;
+		boolean northHit;
+		boolean southHit;
 		
 		if(!hit)
 		{
@@ -190,51 +201,86 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 			targetStack = new TargetStack();
 		}
 		
-		
-		if(col != 9)
+		if(col < 9)
 		{
-			east = new Position(col + 1, row);
+			System.out.println(col + "<" + 9);
+			east = new Position(row, col + 1);
 			targetStack.push(east);
 		}
-		else if(col != 0)
+		
+		if(col > 0)
 		{
-			west = new Position(col - 1, row);
+			System.out.println(col + ">" + 0);
+			west = new Position(row, col - 1);
 			targetStack.push(west);
 		}
-		else
-		{
-			
-		}
+
 		
-		if(row != 0)
+		if(row > 0)
 		{
-			north = new Position(col, row - 1);
+			System.out.println(row + ">" + 0);
+			north = new Position(row - 1 , col);
 			targetStack.push(north);
 		}
-		else if(row != 9)
+		
+		if(row < 9)
 		{
-			south = new Position(col, row + 1);
+			System.out.println(row + "<" + 9);
+			south = new Position(row + 1, col);
 			targetStack.push(south);
 		}
-		else
+
+		
+		System.out.println("EAST: " + east + " WEST: " + west + " NORTH: " + north + " SOUTH: " + south);
+		
+		if(east == null)
 		{
-			
-		}
-		System.out.println(getGrid().boatInitial(pos));
-		if(getGrid().boatInitial(east) == initial || getGrid().boatInitial(west) == initial)
-		{
-			targetStack.removePosition(north);
-			targetStack.removePosition(south);
-		}
-		else if(getGrid().boatInitial(north) == initial || getGrid().boatInitial(south) == initial)
-		{
-			targetStack.removePosition(east);
-			targetStack.removePosition(west);
+			eastHit = false;
 		}
 		else
 		{
-			
+			eastHit = (getGrid().boatInitial(east) == initial);
 		}
+		
+		if(west == null)
+		{
+			westHit = false;
+		}
+		else
+		{
+			westHit = (getGrid().boatInitial(west) == initial);
+		}
+		
+		if(north == null)
+		{
+			northHit = false;
+		}
+		else
+		{
+			northHit = (getGrid().boatInitial(north) == initial);
+		}
+		
+		if(south == null)
+		{
+			southHit = false;
+		}
+		else
+		{
+			southHit = (getGrid().boatInitial(south) == initial);
+		}
+		
+		if (eastHit || westHit)
+		{
+			targetStack.remove(north);
+			targetStack.remove(south);
+		}
+		
+		if (northHit || southHit)
+		{
+			targetStack.remove(east);
+			targetStack.remove(west);
+		}
+		
 	}
 	
 	private Parity smallestParity()
@@ -269,6 +315,7 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 	
 	private Position getNextTARGETTarget()
 	{
+		
 		return (Position) targetStack.pop();
 	}
 	
