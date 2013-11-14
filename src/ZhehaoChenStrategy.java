@@ -83,7 +83,7 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 	private Parity parity;
 	private char currentTarget = '\u0000';
 	private HashSet<Parity> stillAlive;
-	private TargetStack<Position> targetStack;
+	private TargetStack<Position> targetStackA, targetStackB, targetStackC, targetStackS, targetStackD;
 	BattleshipPlayer display = new BattleshipPlayer();
 	
 	public ZhehaoChenStrategy()
@@ -103,7 +103,11 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 		stillAlive.add(Parity.B);
 		stillAlive.add(Parity.A);
 		parity = Parity.D;
-		targetStack = new TargetStack();
+		targetStackA = new TargetStack();
+		targetStackB = new TargetStack();
+		targetStackC = new TargetStack();
+		targetStackS = new TargetStack();
+		targetStackD = new TargetStack();
 		//debug
 		display.initializeGrid();
 	}
@@ -147,6 +151,7 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 		if(hit)
 		{
 			status = Status.TARGET;
+			
 			if(currentTarget == '\u0000')
 			{
 				currentTarget = initial;
@@ -183,16 +188,7 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 	
 	private void manageStack(Position pos, boolean hit, boolean sunk, char initial)
 	{
-		int col = pos.columnIndex();
-		int row = pos.rowIndex();
-		Position east = null;
-		Position west = null;
-		Position north = null;
-		Position south = null;
-		boolean eastHit;
-		boolean westHit;
-		boolean northHit;
-		boolean southHit;
+
 		
 		if(!hit)
 		{
@@ -201,99 +197,60 @@ public class ZhehaoChenStrategy extends ComputerBattleshipPlayer
 		
 		if(sunk)
 		{
-			targetStack = new TargetStack();
+			switch(initial)
+			{
+				case 'A':
+					targetStackA = null;
+				case 'B':
+					targetStackB = null;
+				case 'C':
+					targetStackC = null;
+				case 'S':
+					targetStackS = null;
+				case 'D':
+					targetStackD = null;
+			}
 		}
 		
-		if(col < 9)
+
+		
+		switch(initial)
 		{
-			east = new Position(row, col + 1);
-			targetStack.push(east);
+			case 'A':
+				
 		}
 		
-		if(col > 0)
+	}
+	
+	private void stackA(Position pos)
+	{
+		int col = pos.columnIndex();
+		int row = pos.rowIndex();
+		Position east = null;
+		Position west = null;
+		Position north = null;
+		Position south = null;
+		
+		if(col >= 1)
 		{
 			west = new Position(row, col - 1);
-			targetStack.push(west);
 		}
-
 		
-		if(row > 0)
+		if(col <= 8)
 		{
-			north = new Position(row - 1 , col);
-			targetStack.push(north);
+			east = new Position(row, col + 1);
 		}
 		
-		if(row < 9)
+		if(row >= 1)
+		{
+			north = new Position(row - 1, col);
+		}
+		
+		if(row <= 8)
 		{
 			south = new Position(row + 1, col);
-			targetStack.push(south);
-		}
-
-		
-		if(east == null)
-		{
-			eastHit = false;
-		}
-		else
-		{
-			eastHit = (getGrid().boatInitial(east) == initial);
 		}
 		
-		if(west == null)
-		{
-			westHit = false;
-		}
-		else
-		{
-			westHit = (getGrid().boatInitial(west) == initial);
-		}
-		
-		if(north == null)
-		{
-			northHit = false;
-		}
-		else
-		{
-			northHit = (getGrid().boatInitial(north) == initial);
-		}
-		
-		if(south == null)
-		{
-			southHit = false;
-		}
-		else
-		{
-			southHit = (getGrid().boatInitial(south) == initial);
-		}
-		
-		if (eastHit)
-		{
-			targetStack.remove(east);
-			targetStack.remove(north);
-			targetStack.remove(south);
-		}
-		
-		if(westHit)
-		{
-			targetStack.remove(west);
-			targetStack.remove(north);
-			targetStack.remove(south);
-		}
-		
-		if (northHit)
-		{
-			targetStack.remove(north);
-			targetStack.remove(east);
-			targetStack.remove(west);
-		}
-		
-		if(southHit)
-		{
-			targetStack.remove(south);
-			targetStack.remove(east);
-			targetStack.remove(west);
-		}
-
 		
 	}
 	
