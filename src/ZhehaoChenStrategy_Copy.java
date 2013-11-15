@@ -86,7 +86,7 @@ public class ZhehaoChenStrategy_Copy extends ComputerBattleshipPlayer
 	private TargetStack<Position> targetStack;
 	BattleshipPlayer display = new BattleshipPlayer();
 	
-	public ZhehaoChenStrategy()
+	public ZhehaoChenStrategy_Copy()
 	{
 
 	}
